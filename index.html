@@ -1,31 +1,152 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PDF Page Merger</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-      if (typeof pdfjsLib !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      }
-    </script>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Page Merger</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+  <script defer src="script.js"></script>
 </head>
-<body class="bg-slate-100 font-sans">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+<body>
+  <main class="app" aria-labelledby="app-title">
+    <header class="app__header">
+      <h1 id="app-title">PDF Page Merger</h1>
+      <p>Upload two PDFs, select the pages in the desired order, and merge them into one file.</p>
+    </header>
+
+    <section class="app__columns" aria-label="PDF upload columns">
+      <section id="pdf-column-1" class="pdf-column" data-accent="blue">
+        <h2>File 1: Invoice</h2>
+        <label class="upload-box">
+          <input type="file" accept=".pdf" class="upload-input" />
+          <div class="upload-box__content">
+            <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false" class="icon">
+              <path d="M12 16a1 1 0 0 1-1-1V8.41l-2.3 2.3a1 1 0 0 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 0 1-1.4 1.42L13 8.41V15a1 1 0 0 1-1 1Z" />
+              <path d="M5 18a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3h2a1 1 0 0 1 0 2H5a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2a1 1 0 0 1 0-2h2a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3Z" />
+            </svg>
+            <span>Click to upload a PDF</span>
+          </div>
+        </label>
+
+        <div class="file-details hidden">
+          <p><strong>File:</strong> <span class="file-name"></span></p>
+        </div>
+
+        <div class="field-group">
+          <label for="pages-input-1">Select pages (e.g., 1, 3-5)</label>
+          <input id="pages-input-1" type="text" class="page-input" placeholder="e.g., 1, 3-5, 8" autocomplete="off" />
+        </div>
+
+        <div class="preview-header">
+          <span>Page Previews</span>
+          <div class="zoom-controls">
+            <button type="button" class="zoom-button zoom-out" aria-label="Zoom out">
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false" class="icon">
+                <path d="M5 12a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Z" />
+              </svg>
+            </button>
+            <span class="zoom-value">50%</span>
+            <button type="button" class="zoom-button zoom-in" aria-label="Zoom in">
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false" class="icon">
+                <path d="M11 6a1 1 0 0 1 2 0v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H6a1 1 0 0 1 0-2h5Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-wrapper">
+          <div class="loader hidden" role="status" aria-live="polite">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="loader__label">Rendering pages…</span>
+          </div>
+          <div class="page-previews" data-empty-message="Upload a PDF to see previews."></div>
+        </div>
+
+        <p class="error-message" hidden></p>
+      </section>
+
+      <section id="pdf-column-2" class="pdf-column" data-accent="teal">
+        <h2>File 2: Car List</h2>
+        <label class="upload-box">
+          <input type="file" accept=".pdf" class="upload-input" />
+          <div class="upload-box__content">
+            <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false" class="icon">
+              <path d="M12 16a1 1 0 0 1-1-1V8.41l-2.3 2.3a1 1 0 0 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 0 1-1.4 1.42L13 8.41V15a1 1 0 0 1-1 1Z" />
+              <path d="M5 18a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3h2a1 1 0 0 1 0 2H5a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2a1 1 0 0 1 0-2h2a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3Z" />
+            </svg>
+            <span>Click to upload a PDF</span>
+          </div>
+        </label>
+
+        <div class="file-details hidden">
+          <p><strong>File:</strong> <span class="file-name"></span></p>
+        </div>
+
+        <div class="field-group">
+          <label for="pages-input-2">Select pages (e.g., 1, 3-5)</label>
+          <input id="pages-input-2" type="text" class="page-input" placeholder="e.g., 1, 3-5, 8" autocomplete="off" />
+        </div>
+
+        <div class="preview-header">
+          <span>Page Previews</span>
+          <div class="zoom-controls">
+            <button type="button" class="zoom-button zoom-out" aria-label="Zoom out">
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false" class="icon">
+                <path d="M5 12a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Z" />
+              </svg>
+            </button>
+            <span class="zoom-value">50%</span>
+            <button type="button" class="zoom-button zoom-in" aria-label="Zoom in">
+              <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false" class="icon">
+                <path d="M11 6a1 1 0 0 1 2 0v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H6a1 1 0 0 1 0-2h5Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-wrapper">
+          <div class="loader hidden" role="status" aria-live="polite">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="loader__label">Rendering pages…</span>
+          </div>
+          <div class="page-previews" data-empty-message="Upload a PDF to see previews."></div>
+        </div>
+
+        <p class="error-message" hidden></p>
+      </section>
+    </section>
+
+    <section class="merge-panel" aria-live="polite">
+      <button id="merge-button" class="primary-button" type="button" disabled>
+        <span class="button-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false" class="icon">
+            <path d="M8 4a1 1 0 0 1 1 1v2h6V5a1 1 0 0 1 2 0v2.1a4 4 0 0 1-.66 2.2l-1.68 2.52a2 2 0 0 0-.34 1.11v.07a2 2 0 0 0 .34 1.1l1.68 2.53a4 4 0 0 1 .66 2.2V19a1 1 0 1 1-2 0v-2H9v2a1 1 0 0 1-2 0v-2.1a4 4 0 0 1 .66-2.2l1.68-2.52a2 2 0 0 0 .34-1.11v-.07a2 2 0 0 0-.34-1.1L7.66 9.3A4 4 0 0 1 7 7.1V5a1 1 0 0 1 1-1Zm1 5.68.8 1.2a4 4 0 0 1 .66 2.2v.07a4 4 0 0 1-.66 2.2L9 16.32V17h6v-.68l-.8-1.2a4 4 0 0 1-.66-2.2v-.07a4 4 0 0 1 .66-2.2L15 9.68V9H9v.68Z" />
+          </svg>
+        </span>
+        <span class="button-spinner" aria-hidden="true"></span>
+        <span class="button-label">Merge Selected Pages</span>
+      </button>
+      <p id="merge-error" class="error-message" hidden></p>
+      <div id="download-section" class="download" hidden>
+        <p class="download__message">Merge Successful!</p>
+        <a id="download-link" class="secondary-button" href="#" download>
+          <span aria-hidden="true" class="button-icon">
+            <svg viewBox="0 0 24 24" focusable="false" class="icon">
+              <path d="M12 16a1 1 0 0 1-.7-.29l-4-4a1 1 0 0 1 1.4-1.42l2.3 2.3V5a1 1 0 0 1 2 0v7.59l2.3-2.3a1 1 0 0 1 1.4 1.42l-4 4a1 1 0 0 1-.7.29Z" />
+              <path d="M5 19a3 3 0 0 1-3-3v-1a1 1 0 1 1 2 0v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1a1 1 0 0 1 2 0v1a3 3 0 0 1-3 3Z" />
+            </svg>
+          </span>
+          <span class="button-label">Download Merged PDF</span>
+        </a>
+      </div>
+    </section>
+  </main>
 </body>
 </html>

@@ -1,20 +1,21 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# PDF Page Merger
 
-# Run and deploy your AI Studio app
+A lightweight, client-side tool for merging specific pages from two PDF files. Upload each document, choose the pages you want to keep, and download a single merged PDF. Everything runs entirely in your browser using plain HTML, CSS, and JavaScript.
 
-This contains everything you need to run your app locally.
+## Getting Started
 
-View your app in AI Studio: https://ai.studio/apps/drive/1xsxoDPnXsR0rc29wDYY2N3pGtOAeQqWr
+1. Download or clone this repository.
+2. Open [`index.html`](index.html) in any modern desktop browser (Chrome, Edge, Firefox, or Safari).
+3. Upload two PDF files, select the pages to merge, and click **Merge Selected Pages**.
 
-## Run Locally
+> **Tip:** Page previews are rendered in the browser, so large PDFs may take a moment to process.
 
-**Prerequisites:**  Node.js
+## Technology
 
+- [pdf-lib](https://pdf-lib.js.org/) for assembling the merged PDF.
+- [Mozilla PDF.js](https://mozilla.github.io/pdf.js/) for generating page previews.
+- Vanilla HTML, CSS, and JavaScript—no build tools or frameworks required.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Browser Support
+
+The app relies on modern browser APIs such as `URL.createObjectURL` and `ArrayBuffer`. Any evergreen desktop browser released in the last few years should work correctly.
