@@ -1,5 +1,0 @@
-{
-  "name": "PDF Page Merger",
-  "description": "An application to upload two PDF files, select specific pages from each, and merge them into a single downloadable PDF document. Ideal for combining invoices with related documents.",
-  "requestFramePermissions": []
-}
